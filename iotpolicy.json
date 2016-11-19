@@ -1,0 +1,10 @@
+{
+    "certificates": [
+        {
+            "certificateArn": "arn:aws:iot:us-west-2:421742069656:cert/868fde4221f8038030edd91f0c1b482c7814c951a605e6e7b77d6681954cb2f6", 
+            "status": "ACTIVE", 
+            "creationDate": 1479101908.379, 
+            "certificateId": "868fde4221f8038030edd91f0c1b482c7814c951a605e6e7b77d6681954cb2f6"
+        }
+    ]
+}
