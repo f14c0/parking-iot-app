@@ -2,6 +2,9 @@ import paho.mqtt.client as mqtt
 import json
 import os
 import ssl
+import datetime
+import time
+
 
 def on_connect(mqttc, obj, flags, rc):
     if rc == 0:
@@ -12,7 +15,7 @@ def on_connect(mqttc, obj, flags, rc):
 
 def on_subscribe(mqttc, obj, mid, granted_qos):
     print("Subscribed: " + str(mid) + " " + str(granted_qos) + "data" + str(obj))
-    first_message()
+
 
 
 def on_message(mqttc, obj, msg):
@@ -24,15 +27,16 @@ def on_publish(client, userdata, mid):
     print("Message is published")
 
 
-def first_message():
+def update_state():
+    print ("updating..")
     payload = json.dumps({
         "state":{
             "reported":{
-                "this_thing_is_alive":True,
-                "color":{
-                    "r":255,
-                    "g":1,
-                    "b":255
+                "alive":True,
+                "parking_state":{
+                    "available":True,
+                    "reserved":True,
+                    "reservation_due" : str(datetime.datetime.now())
                 }
             }
         }
@@ -40,12 +44,15 @@ def first_message():
     mqttc.publish("$aws/things/parking-lot-one/shadow/update", payload)
 
 
+#mqtt settings
+
 root_cert_path = os.path.join(os.path.dirname(__file__), '../certs/root-CA.crt')
 cert_path = os.path.join(os.path.dirname(__file__), '../certs/one/69ecbfbb92-certificate.pem.crt')
 private_key_path = os.path.join(os.path.dirname(__file__), '../certs/one//69ecbfbb92-private.pem.key')
 
 
 mqttc = mqtt.Client(client_id="parking-lot-one")
+# setup callback functions
 mqttc.on_connect = on_connect
 mqttc.on_subscribe = on_subscribe
 mqttc.on_message = on_message
@@ -55,4 +62,8 @@ mqttc.tls_set(root_cert_path, certfile=cert_path, keyfile=private_key_path, tls_
 mqttc.connect("a1io4zpp14aci0.iot.us-west-2.amazonaws.com", port=8883)  # AWS IoT service hostname and port
 mqttc.subscribe("$aws/things/parking-lot-one/shadow/update/#",  qos=1)  # The names of these topics start with $aws/things/thingName/shadow."
 
-mqttc.loop_forever()
+mqttc.loop_start()
+
+while True:
+    update_state()
+    time.sleep(1)
