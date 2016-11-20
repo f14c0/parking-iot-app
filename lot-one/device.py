@@ -70,4 +70,4 @@ mqttc.loop_start()
 
 while True:
     update_state()
-    time.sleep(3)
+    time.sleep(10)

@@ -1,6 +1,7 @@
 import paho.mqtt.client as mqtt
 import os
 import ssl
+import json
 
 
 def on_connect(mqttc, obj, flags, rc):
@@ -17,8 +18,15 @@ def on_subscribe(mqttc, obj, mid, granted_qos):
 
 def on_message(mqttc, obj, msg):
     print("Received message from topic: " + msg.topic + " | QoS: " + str(msg.qos))
-    #msg= msg.payload
+    payload= json.loads(msg.payload)
+    device_id = payload['parking']['device_id']
+    update_firebase(device_id,payload)
 
+def update_firebase(device_id=None,parking_lot_data={}):
+    from firebase import firebase
+    firebase = firebase.FirebaseApplication('https://parking-iot-ba1c5.firebaseio.com/', authentication=None)
+    url = 'parkings/'
+    firebase.put(url,device_id,parking_lot_data)
 
 
 #mqtt settings
